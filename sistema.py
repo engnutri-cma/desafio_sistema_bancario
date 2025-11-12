@@ -1,24 +1,22 @@
 from time import sleep
 
-def linha(n=42) -> str:
-    return "-" * n
+def linha(largura=42):
+    return "-" * largura
 
 
 def cabecalho(txt="MENU PRINCIPAL", largura=60):
-    barra = "-" * largura
+    barra = linha(largura)
     print(barra)
     print(txt.center(len(barra)))
     print(barra)
 
 
-def menu(*opcoes, conta_corrente=None, largura=42):
-    
+def menu(*opcoes, conta_corrente=None, largura=60):
     cabecalho(f"MENU PRINCIPAL - Agência: 0001 - Conta Corrente: {conta_corrente} ", largura=largura)
     for i, item in enumerate(opcoes, start=1):
         print(f"{i} - {item}")
-    print(linha(largura))
-
-    barra = linha(largura)
+    barra = '-' * largura
+    print(barra)
     prompt = "Escolha uma opção:  "
     prompt_preenchido = prompt.ljust(len(barra) - 1)
     print(prompt_preenchido, end="")
@@ -102,7 +100,7 @@ def depositar(saldo, valor, extrato, /):
 def historico(saldo, extrato):
     cabecalho('EXTRATO BANCÁRIO')
     if not extrato:
-        print(">>> Não foram realizadas movimentações hoje. <<< ")
+        print(">>> Não foram realizadas movimentações recentes. <<< ")
     else:
         print(extrato)
     print(f'Saldo: R$ {saldo:.2f}')
@@ -126,7 +124,7 @@ def cadastrar(ARQ, cpf, nome, data_de_nascimento, endereco, conta_corrente=None,
 
 def nova_conta_corrente(*conta_corrente):
     global AGENCIA 
-    AGENCIA = '0001'
+    AGENCIA = '0001' 
 
     qty_contas = list(conta_corrente)  
     conta_corrente_criada = len(qty_contas) + 1 if qty_contas else 1
@@ -179,8 +177,8 @@ def opcao1( saldo, extrato, numero_saques, conta_corrente, cpf, ARQ):
 
 
 def util_menu(saldo, extrato, numero_saques, limite, limite_saques, cpf, nome, conta_corrente, data_de_nascimento, endereco, ARQ):
-    conta_corrente = dic_conta_corrente['conta_corrente']
     while True:
+        atualizar_saldo_no_arquivo( cpf, saldo, conta_corrente, ARQ)
         print(f'Agência: 0001 - C/c: {conta_corrente}')
         opcao = menu('LISTAR CONTAS', 'SALDO', 'SAQUE', 'DEPÓSITO', 'EXTRATO', 'NOVA CONTA CORRENTE','SAIR DO SISTEMA', conta_corrente=conta_corrente)
 
@@ -232,7 +230,6 @@ def util_menu(saldo, extrato, numero_saques, limite, limite_saques, cpf, nome, c
             opcao1( saldo, extrato, numero_saques, conta_corrente, cpf, ARQ)
 
         elif opcao == 7:
-            atualizar_saldo_no_arquivo( cpf, saldo, conta_corrente, ARQ)
             print('Obrigado por usar nosso sistema bancário. Até logo!')
             sleep(1)
             break
@@ -335,6 +332,7 @@ while True:
             saldo = 0.0
             nome = None 
             conta = 0
+
         
         contas = ler_contas_usuario(cpf, ARQ)
         cabecalho('QUAL CONTA DESEJA ACESSAR?')
@@ -349,6 +347,7 @@ while True:
                     print('>>> OPÇÃO INVÁLIDA - Tente novamente <<<')
 
         dic_conta_corrente = contas[escolha - 1]
+        
         dic_dados_conta = {
             'cpf': dic_conta_corrente['cpf'],
             'nome': dic_conta_corrente['nome'],
@@ -361,6 +360,7 @@ while True:
         extrato = ''
         numero_saques = 0
         conta_corrente = dic_conta_corrente['conta_corrente']
+
 
         cabecalho('Selecione a operação desejada no menu abaixo')
         util_menu(dic_conta_corrente['saldo'], extrato, numero_saques, limite, limite_saques, cpf, nome, conta_corrente, data_de_nascimento, endereco, ARQ)
@@ -400,14 +400,10 @@ while True:
         conta = nova_conta_corrente(*contas_existentes)
         cadastrar(ARQ, cpf, nome, data_de_nascimento, endereco, conta['conta_corrente'])
 
-        conta_escolhida = {
-    'cpf': cpf,
-    'nome': nome,
-    'data_de_nascimento': data_de_nascimento,
-    'endereco': endereco,
-    'conta_corrente': conta['conta_corrente'],
-    'saldo': saldo
-}
+        print(f'>>> Conta criada com sucesso! <<< ')
+        sleep(0.5)
+        print(f'Sua nova conta corrente foi criada: 0001-{conta_corrente}')
+        sleep(0.5)
 
-cabecalho('Selecione a operação desejada no menu abaixo')
-util_menu(saldo, extrato, numero_saques, limite, limite_saques, cpf, nome, conta_corrente, data_de_nascimento, endereco, ARQ)
+        cabecalho('Selecione a operação desejada no menu abaixo')
+        util_menu(saldo, extrato, numero_saques, limite, limite_saques, cpf, nome, conta_corrente, data_de_nascimento, endereco, ARQ)
